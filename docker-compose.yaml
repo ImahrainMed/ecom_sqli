@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+
+  # ---------- Symfony application ----------
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony_php
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    environment:
+      APP_ENV: dev
+      DATABASE_URL: "mysql://symfony:symfony@database:3306/symfony?serverVersion=8.0"
+      MAILER_DSN: "smtp://mailhog:1025"
+    depends_on:
+      - database
+      - mailhog
+    networks:
+      - symfony_net
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: symfony_nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks:
+      - symfony_net
+
+  # ---------- MySQL ----------
+  database:
+    image: mysql:8.0
+    container_name: symfony_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: symfony
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - symfony_net
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: symfony_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: database
+      PMA_USER: root
+      PMA_PASSWORD: root
+      UPLOAD_LIMIT: 64M
+    ports:
+      - "8081:80"
+    depends_on:
+      - database
+    networks:
+      - symfony_net
+
+  # ---------- Fake mail catcher (dev SMTP) ----------
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: symfony_mailhog
+    restart: unless-stopped
+    ports:
+      - "8025:8025"   # Web UI: http://localhost:8025
+      - "1025:1025"   # SMTP port used by MAILER_DSN
+    networks:
+      - symfony_net
+
+  # ---------- Graylog stack ----------
+  mongodb:
+    image: mongo:6.0
+    container_name: graylog_mongodb
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - symfony_net
+
+  opensearch:
+    image: opensearchproject/opensearch:2.12.0
+    container_name: graylog_opensearch
+    restart: unless-stopped
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "bootstrap.memory_lock=true"
+      - "discovery.type=single-node"
+      - "action.auto_create_index=false"
+      - "plugins.security.ssl.http.enabled=false"
+      - "plugins.security.disabled=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    networks:
+      - symfony_net
+
+  graylog:
+    image: graylog/graylog:6.1
+    container_name: symfony_graylog
+    restart: unless-stopped
+    entrypoint: /usr/bin/tini -- wait-for-it opensearch:9200 -- /docker-entrypoint.sh
+    environment:
+      # CHANGE ME in production (must be at least 16 chars)
+      GRAYLOG_PASSWORD_SECRET: "somepasswordpepper"
+      # Default login is admin / admin (sha2 hash of "admin")
+      GRAYLOG_ROOT_PASSWORD_SHA2: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://127.0.0.1:9000/"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
+      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+    depends_on:
+      - mongodb
+      - opensearch
+    volumes:
+      - graylog_data:/usr/share/graylog/data
+    ports:
+      - "9000:9000"       # Web interface / REST API -> http://localhost:9000
+      - "1514:1514"       # Syslog TCP
+      - "1514:1514/udp"   # Syslog UDP
+      - "12201:12201"     # GELF TCP (use this for Symfony/Monolog GELF handler)
+      - "12201:12201/udp" # GELF UDP
+    networks:
+      - symfony_net
+
+networks:
+  symfony_net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  mongo_data:
+  opensearch_data:
+  graylog_data:
