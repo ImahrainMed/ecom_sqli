@@ -95,7 +95,7 @@ services:
     container_name: graylog_opensearch
     restart: unless-stopped
     environment:
-      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "OPENSEARCH_INITIAL_ADMIN_PASSWORD=StrongP@ssw0rd123!"
       - "bootstrap.memory_lock=true"
       - "discovery.type=single-node"
       - "action.auto_create_index=false"
