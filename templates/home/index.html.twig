@@ -7,4 +7,33 @@
         <h1>Welcome to Ecom SQLI</h1>
         <p>This is the homepage of the e-commerce application.</p>
     </section>
+
+    {% for category in categories %}
+        <section class="category-section">
+            <h2>{{ category.name }}</h2>
+
+            <div class="product-grid">
+                {% for product in category.products %}
+                    <div class="product-card">
+                        {% if product.imageUrl %}
+                            <img src="{{ product.imageUrl }}" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="product-card-placeholder">No image</div>
+                        {% endif %}
+
+                        <h3>{{ product.name }}</h3>
+                        <p class="product-price">{{ product.price }} MAD</p>
+
+                        {% if product.stock > 0 %}
+                            <p class="product-stock in-stock">In stock ({{ product.stock }})</p>
+                        {% else %}
+                            <p class="product-stock out-of-stock">Out of stock</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p>No products in this category yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endfor %}
 {% endblock %}
