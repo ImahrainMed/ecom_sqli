@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }} - Ecom SQLI{% endblock %}
+
+{% block body %}
+    <section class="product-detail">
+        <div class="product-detail__image">
+            {% if product.imageUrl %}
+                <img src="{{ product.imageUrl }}" alt="{{ product.name }}">
+            {% else %}
+                <div class="product-detail__placeholder">
+                    No image available
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="product-detail__content">
+            <h1>{{ product.name }}</h1>
+
+            <p class="product-detail__price">
+                {{ product.price|number_format(2, '.', ' ') }} €
+            </p>
+
+            <div class="product-detail__stock">
+                {% if product.stock > 0 %}
+                    <span class="stock stock--available">In stock: {{ product.stock }}</span>
+                {% else %}
+                    <span class="stock stock--out">Out of stock</span>
+                {% endif %}
+            </div>
+
+            <div class="product-detail__description">
+                <h2>Description</h2>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <form class="add-to-cart-form" method="post" action="#">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+
+                {% if product.stock > 0 %}
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
+
+                    <button type="submit" class="btn btn-primary">
+                        Add to cart
+                    </button>
+                {% else %}
+                    <button type="button" class="btn btn-disabled" disabled>
+                        Out of stock
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </section>
+{% endblock %}
