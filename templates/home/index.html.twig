@@ -8,32 +8,53 @@
         <p>This is the homepage of the e-commerce application.</p>
     </section>
 
-    {% for category in categories %}
-        <section class="category-section">
-            <h2>{{ category.name }}</h2>
+    <form method="get" action="{{ path('app_home') }}" class="search-bar">
+        <input type="text" name="q" placeholder="Search products..." value="{{ searchKeyword }}">
+        {% if selectedCategory %}
+            <input type="hidden" name="category" value="{{ selectedCategory }}">
+        {% endif %}
+        <button type="submit">Search</button>
+    </form>
 
-            <div class="product-grid">
-                {% for product in category.products %}
-                    <div class="product-card">
-                        {% if product.imageUrl %}
-                            <img src="{{ product.imageUrl }}" alt="{{ product.name }}">
-                        {% else %}
-                            <div class="product-card-placeholder">No image</div>
-                        {% endif %}
+    <nav class="category-filter">
+        <a href="{{ path('app_home', {q: searchKeyword}) }}" class="{{ selectedCategory is null ? 'active' : '' }}">All</a>
+        {% for category in allCategories %}
+            <a href="{{ path('app_home', {category: category.slug, q: searchKeyword}) }}"
+               class="{{ selectedCategory == category.slug ? 'active' : '' }}">
+                {{ category.name }}
+            </a>
+        {% endfor %}
+    </nav>
 
-                        <h3>{{ product.name }}</h3>
-                        <p class="product-price">{{ product.price }} MAD</p>
+    {% if hasResults %}
+        {% for categoryName, products in groupedProducts %}
+            <section class="category-section">
+                <h2>{{ categoryName }}</h2>
+                <div class="product-grid">
+                    {% for product in products %}
+                        <div class="product-card">
+                            {% if product.imageUrl %}
+                                <img src="{{ product.imageUrl }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="product-card-placeholder">No image</div>
+                            {% endif %}
 
-                        {% if product.stock > 0 %}
-                            <p class="product-stock in-stock">In stock ({{ product.stock }})</p>
-                        {% else %}
-                            <p class="product-stock out-of-stock">Out of stock</p>
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <p>No products in this category yet.</p>
-                {% endfor %}
-            </div>
-        </section>
-    {% endfor %}
+                            <h3>{{ product.name }}</h3>
+                            <p class="product-price">{{ product.price }} MAD</p>
+
+                            {% if product.stock > 0 %}
+                                <p class="product-stock in-stock">In stock ({{ product.stock }})</p>
+                            {% else %}
+                                <p class="product-stock out-of-stock">Out of stock</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+        {% endfor %}
+    {% else %}
+        <div class="no-results">
+            <p>No products found. Try a different search or category.</p>
+        </div>
+    {% endif %}
 {% endblock %}
