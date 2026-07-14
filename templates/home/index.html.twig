@@ -47,6 +47,21 @@
                             {% else %}
                                 <p class="product-stock out-of-stock">Out of stock</p>
                             {% endif %}
+
+                            <form method="post" action="{{ path('app_cart_add', {productId: product.id}) }}" class="add-to-cart-form">
+                                {% if selectedCategory %}
+                                    <input type="hidden" name="category" value="{{ selectedCategory }}">
+                                {% endif %}
+                                {% if searchKeyword %}
+                                    <input type="hidden" name="q" value="{{ searchKeyword }}">
+                                {% endif %}
+
+                                {% if product.stock > 0 %}
+                                    <button type="submit" class="btn btn-primary">Add to cart</button>
+                                {% else %}
+                                    <button type="button" class="btn btn-disabled" disabled>Out of stock</button>
+                                {% endif %}
+                            </form>
                         </div>
                     {% endfor %}
                 </div>

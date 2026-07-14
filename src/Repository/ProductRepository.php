@@ -16,7 +16,7 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function search(?string $categorySlug, ?string $keyword): array
+    public function search(?string $categorySlug, ?string $keyword, ?float $maxPrice = null): array
     {
         $qb = $this->createQueryBuilder('p')
             ->join('p.category', 'c')
@@ -30,6 +30,11 @@ class ProductRepository extends ServiceEntityRepository
         if ($keyword) {
             $qb->andWhere('p.name LIKE :keyword OR p.description LIKE :keyword')
                ->setParameter('keyword', '%' . $keyword . '%');
+        }
+
+        if ($maxPrice !== null) {
+            $qb->andWhere('p.price <= :maxPrice')
+               ->setParameter('maxPrice', $maxPrice);
         }
 
         return $qb->getQuery()->getResult();

@@ -1,9 +1,40 @@
+{% set cart = cart_summary() %}
 <nav class="navbar">
     <div class="container">
         <a class="navbar-brand" href="/">Ecom SQLI</a>
         <a href="/">Home</a>
         <a href="#">Categories</a>
-        <a href="#">Cart</a>
+
+        <div class="cart-dropdown" data-controller="cart-dropdown">
+            <button type="button" class="cart-dropdown__toggle" data-action="click->cart-dropdown#toggle">
+                Cart
+                <span class="cart-dropdown__badge">{{ cart.count }}</span>
+            </button>
+
+            <div class="cart-dropdown__menu">
+                {% if cart.items is empty %}
+                    <p class="cart-dropdown__empty">Your cart is empty.</p>
+                {% else %}
+                    <ul class="cart-dropdown__items">
+                        {% for item in cart.items|slice(0, 3) %}
+                            <li class="cart-dropdown__item">
+                                <span class="cart-dropdown__item-name">{{ item.product.name }}</span>
+                                <span class="cart-dropdown__item-qty">x{{ item.quantity }}</span>
+                                <span class="cart-dropdown__item-price">{{ item.subtotal|number_format(2, '.', ' ') }} MAD</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+
+                    <div class="cart-dropdown__subtotal">
+                        <span>Subtotal</span>
+                        <span>{{ cart.total|number_format(2, '.', ' ') }} MAD</span>
+                    </div>
+                {% endif %}
+
+                <a href="{{ path('app_cart') }}" class="cart-dropdown__view-btn">View cart</a>
+            </div>
+        </div>
+
         <a href="#">Login</a>
     </div>
 </nav>
