@@ -143,3 +143,52 @@ footer .container {
 .product-stock.out-of-stock {
     color: #c62828;
 }
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.search-bar input[type="text"] {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.search-bar button {
+    padding: 8px 16px;
+    background: #212529;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.category-filter {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.category-filter a {
+    padding: 6px 14px;
+    background: white;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #212529;
+    font-size: 0.9rem;
+}
+
+.category-filter a.active {
+    background: #212529;
+    color: white;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
