@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cart | Ecom SQLI{% endblock %}
+
+{% block body %}
+    <section class="cart-page">
+        <h1>Your Cart</h1>
+
+        {% if cartIsEmpty %}
+            <div class="cart-empty">
+                <p>Your cart is empty.</p>
+                <a href="{{ path('app_home') }}" class="btn btn-primary">Continue shopping</a>
+            </div>
+        {% else %}
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Product</th>
+                        <th>Unit price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td class="cart-table__image">
+                                {% if item.product.imageUrl %}
+                                    <img src="{{ item.product.imageUrl }}" alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="cart-table__placeholder">No image</div>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.product.price|number_format(2, '.', ' ') }} MAD</td>
+                            <td>
+                                <form method="post" action="{{ path('app_cart_update', {productId: item.product.id}) }}">
+                                    <input type="number" name="quantity" class="cart-qty-input"
+                                           value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}"
+                                           onchange="this.form.requestSubmit()">
+                                </form>
+                            </td>
+                            <td>{{ item.subtotal|number_format(2, '.', ' ') }} MAD</td>
+                            <td>
+                                <form method="post" action="{{ path('app_cart_remove', {productId: item.product.id}) }}">
+                                    <button type="submit" class="btn btn-remove">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="cart-summary">
+                <span>Total</span>
+                <span class="cart-summary__total">{{ total|number_format(2, '.', ' ') }} MAD</span>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}
