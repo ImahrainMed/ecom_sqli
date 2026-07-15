@@ -52,3 +52,18 @@ La tâche est considérée comme validée lorsque :
 - La barre de navigation contient les liens Home, Categories, Cart et Login.
 - Le footer est visible sur la page.
 - Le fichier SCSS partagé est chargé sur les pages.
+## SQLIE-11 - QA panier et stock
+
+Une vérification QA a été effectuée sur les cas limites liés au panier et au stock avant de passer à l'étape checkout.
+
+### Cas testés
+
+- Un utilisateur ne peut pas ajouter une quantité supérieure au stock actuel depuis l'interface de la page produit.
+- Un utilisateur ne peut pas ajouter une quantité supérieure au stock actuel via une soumission directe du formulaire.
+- La réduction du stock d'un produit déjà présent dans le panier ne fait pas crasher la page panier.
+
+### Limitation connue
+
+Si un produit est ajouté au panier avec une quantité valide, puis que le stock du produit est réduit ensuite via les fixtures ou une modification admin, le panier peut temporairement contenir une quantité supérieure au stock réellement disponible.
+
+Ce cas est documenté comme une limitation connue avant la mise en place du checkout. Le stock devra être revérifié au moment du checkout afin de s'assurer que la commande finale ne dépasse pas le stock disponible.

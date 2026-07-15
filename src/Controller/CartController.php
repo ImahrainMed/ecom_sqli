@@ -31,27 +31,29 @@ class CartController extends AbstractController
     }
 
     #[Route('/cart/add/{productId}', name: 'app_cart_add', requirements: ['productId' => '\d+'], methods: ['POST'])]
-    public function add(int $productId, Request $request): RedirectResponse
-    {
-        $product = $this->productRepository->find($productId);
+    #[Route('/cart/add/{productId}', name: 'app_cart_add', requirements: ['productId' => '\d+'], methods: ['POST'])]
+public function add(int $productId, Request $request): RedirectResponse
+{
+    $product = $this->productRepository->find($productId);
 
-        if (!$product) {
-            throw $this->createNotFoundException('Product not found.');
-        }
-
-        try {
-            $this->cartService->add($product, 1);
-            $this->addFlash('success', sprintf('"%s" was added to your cart.', $product->getName()));
-        } catch (\InvalidArgumentException) {
-            $this->addFlash('error', 'Not enough stock available for this quantity.');
-        }
-
-        return $this->redirectToRoute('app_home', array_filter([
-            'category' => $request->request->get('category'),
-            'q' => $request->request->get('q'),
-        ]));
+    if (!$product) {
+        throw $this->createNotFoundException('Product not found.');
     }
 
+    $quantity = $request->request->getInt('quantity', 1);
+
+    try {
+        $this->cartService->add($product, $quantity);
+        $this->addFlash('success', sprintf('"%s" was added to your cart.', $product->getName()));
+    } catch (\InvalidArgumentException) {
+        $this->addFlash('error', 'Not enough stock available for this quantity.');
+    }
+
+    return $this->redirectToRoute('app_home', array_filter([
+        'category' => $request->request->get('category'),
+        'q' => $request->request->get('q'),
+    ]));
+}
     #[Route('/cart/update/{productId}', name: 'app_cart_update', requirements: ['productId' => '\d+'], methods: ['POST'])]
     public function update(int $productId, Request $request): RedirectResponse
     {
