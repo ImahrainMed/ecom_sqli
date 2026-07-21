@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout - Ecom SQLI{% endblock %}
+
+{% block body %}
+    <h1>Checkout</h1>
+
+    <section class="checkout-summary">
+        <h2>Order summary</h2>
+
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.product.price|number_format(2, '.', ' ') }} MAD</td>
+                        <td>{{ item.subtotal|number_format(2, '.', ' ') }} MAD</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="cart-total">
+            Total: {{ total|number_format(2, '.', ' ') }} MAD
+        </p>
+    </section>
+
+    <section class="checkout-address">
+        <h2>Shipping address</h2>
+
+        <form method="post" action="{{ path('app_checkout') }}">
+            <div>
+                <label for="street">Street</label>
+                <input type="text" id="street" name="street" value="{{ street|default('') }}" required>
+            </div>
+
+            <div>
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" value="{{ city|default('') }}" required>
+            </div>
+
+            <div>
+                <label for="postalCode">Postal code</label>
+                <input type="text" id="postalCode" name="postalCode" value="{{ postalCode|default('') }}" required>
+            </div>
+
+            <div>
+                <label for="country">Country</label>
+                <input type="text" id="country" name="country" value="{{ country|default('') }}" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Place order
+            </button>
+        </form>
+    </section>
+{% endblock %}
