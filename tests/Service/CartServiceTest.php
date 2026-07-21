@@ -121,4 +121,87 @@ private function createCartService(array $products = []): CartService
 
         $this->assertSame(55.5, $cartService->getTotal());
     }
+
+    public function testAddNegativeQuantityThrowsException(): void
+    {
+        $product = $this->createProduct(1, '20.00', 10);
+        $cartService = $this->createCartService([1 => $product]);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Quantity must be greater than zero.');
+
+        $cartService->add($product, -1);
+    }
+
+    public function testAddZeroQuantityThrowsException(): void
+    {
+        $product = $this->createProduct(1, '20.00', 10);
+        $cartService = $this->createCartService([1 => $product]);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Quantity must be greater than zero.');
+
+        $cartService->add($product, 0);
+    }
+
+    public function testAddCumulativeQuantityExceedsStockThrowsException(): void
+    {
+        $product = $this->createProduct(1, '20.00', 5);
+        $cartService = $this->createCartService([1 => $product]);
+
+        $cartService->add($product, 3);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Requested quantity exceeds available stock.');
+
+        $cartService->add($product, 3);
+    }
+
+    public function testUpdateNegativeQuantityThrowsException(): void
+    {
+        $product = $this->createProduct(1, '20.00', 10);
+        $cartService = $this->createCartService([1 => $product]);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Quantity cannot be negative.');
+
+        $cartService->update($product, -1);
+    }
+
+    public function testRemoveNonExistentItemDoesNotThrow(): void
+    {
+        $product = $this->createProduct(1, '20.00', 10);
+        $cartService = $this->createCartService([1 => $product]);
+
+        $cartService->remove($product);
+
+        $this->assertSame([], $cartService->getCart());
+    }
+
+    /**
+     * Si le produit a été supprimé entre le moment où il a été ajouté au panier
+     * et l'appel à getItems() (ProductRepository::find() retourne alors null),
+     * l'entrée est ignorée silencieusement dans le résultat retourné.
+     * Limitation connue (non corrigée par ce test) : le panier en session
+     * conserve malgré tout l'entrée "fantôme" du produit supprimé.
+     */
+    public function testGetItemsSkipsDeletedProduct(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('cart', [1 => 2]);
+
+        $request = new Request();
+        $request->setSession($session);
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $productRepository = $this->createStub(ProductRepository::class);
+        $productRepository->method('find')->willReturn(null);
+
+        $cartService = new CartService($requestStack, $productRepository);
+
+        $this->assertSame([], $cartService->getItems());
+        $this->assertSame([1 => 2], $cartService->getCart());
+    }
 }
