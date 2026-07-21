@@ -6,9 +6,11 @@ use App\Entity\Order;
 use App\Entity\OrderItem;
 use App\Entity\User;
 use App\Enum\OrderStatus;
+use App\Event\OrderPlacedEvent;
 use App\Service\CartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +21,7 @@ class CheckoutController extends AbstractController
     public function __construct(
         private readonly CartService $cartService,
         private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -109,6 +112,8 @@ class CheckoutController extends AbstractController
             $this->entityManager->persist($order);
             $this->entityManager->flush();
             $this->entityManager->commit();
+
+            $this->eventDispatcher->dispatch(new OrderPlacedEvent($order));
 
             $this->cartService->clear();
 
