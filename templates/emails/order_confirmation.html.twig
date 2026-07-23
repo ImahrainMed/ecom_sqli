@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmation de commande #{{ order.id }}</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding: 24px 0;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 8px; overflow: hidden;">
+                    <tr>
+                        <td style="background-color: #212529; color: #ffffff; padding: 20px 24px;">
+                            <h1 style="margin: 0; font-size: 20px;">Ecom SQLI</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 24px;">
+                            <h2 style="margin-top: 0;">Merci pour votre commande !</h2>
+                            <p>Votre commande <strong>#{{ order.id }}</strong> a bien été enregistrée le {{ order.createdAt|date('d/m/Y à H:i') }}.</p>
+
+                            <table role="presentation" width="100%" cellpadding="8" cellspacing="0" style="border-collapse: collapse; margin-top: 16px;">
+                                <thead>
+                                    <tr style="border-bottom: 2px solid #212529; text-align: left;">
+                                        <th>Produit</th>
+                                        <th>Quantité</th>
+                                        <th>Prix unitaire</th>
+                                        <th>Sous-total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.orderItems %}
+                                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                                            <td>{{ item.product.name }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>{{ item.unitPrice|number_format(2, '.', ' ') }} MAD</td>
+                                            <td>{{ (item.unitPrice * item.quantity)|number_format(2, '.', ' ') }} MAD</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <table role="presentation" width="100%" cellpadding="8" cellspacing="0" style="margin-top: 12px;">
+                                <tr>
+                                    <td align="right" style="font-weight: bold; font-size: 16px;">Total : {{ order.total|number_format(2, '.', ' ') }} MAD</td>
+                                </tr>
+                            </table>
+
+                            <p style="margin-top: 24px;">
+                                Adresse de livraison :<br>
+                                {{ order.street }}<br>
+                                {{ order.postalCode }} {{ order.city }}<br>
+                                {{ order.country }}
+                            </p>
+
+                            <p style="margin-top: 24px; color: #6b7280; font-size: 13px;">
+                                Merci de votre confiance,<br>L'équipe Ecom SQLI
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

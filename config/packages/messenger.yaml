@@ -18,7 +18,13 @@ framework:
             messenger.bus.default: []
 
         routing:
-            Symfony\Component\Mailer\Messenger\SendEmailMessage: async
+            # Sent synchronously (not routed to "async"): this project has no
+            # messenger consumer worker running anywhere (checked docker-compose.yaml
+            # — no such service), so routing mailer messages to "async" meant they
+            # were queued in `messenger_messages` and never actually delivered.
+            # Order confirmation emails (SQLIE-19) need to be sent right after
+            # checkout, so this has to happen in-process.
+            # Symfony\Component\Mailer\Messenger\SendEmailMessage: async
             Symfony\Component\Notifier\Message\ChatMessage: async
             Symfony\Component\Notifier\Message\SmsMessage: async
 
