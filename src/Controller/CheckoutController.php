@@ -7,11 +7,11 @@ use App\Entity\OrderItem;
 use App\Entity\User;
 use App\Enum\OrderStatus;
 use App\Event\OrderPlacedEvent;
+use App\Repository\OrderRepository;
 use App\Service\CartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -44,88 +44,132 @@ class CheckoutController extends AbstractController
             return $this->redirectToRoute('app_cart');
         }
 
-        if ($request->isMethod('GET')) {
-            return $this->render('checkout/index.html.twig', [
-                'items' => $items,
-                'total' => $this->cartService->getTotal(),
-            ]);
-        }
+        $formData = [
+            'street' => '',
+            'city' => '',
+            'postalCode' => '',
+            'country' => '',
+        ];
 
-        $street = trim((string) $request->request->get('street'));
-        $city = trim((string) $request->request->get('city'));
-        $postalCode = trim((string) $request->request->get('postalCode'));
-        $country = trim((string) $request->request->get('country'));
+        $errors = [];
 
-        if ($street === '' || $city === '' || $postalCode === '' || $country === '') {
-            $this->addFlash('error', 'Please fill in all shipping address fields.');
+        if ($request->isMethod('POST')) {
+            $formData = [
+                'street' => trim((string) $request->request->get('street')),
+                'city' => trim((string) $request->request->get('city')),
+                'postalCode' => trim((string) $request->request->get('postalCode')),
+                'country' => trim((string) $request->request->get('country')),
+            ];
 
-            return $this->render('checkout/index.html.twig', [
-                'items' => $items,
-                'total' => $this->cartService->getTotal(),
-                'street' => $street,
-                'city' => $city,
-                'postalCode' => $postalCode,
-                'country' => $country,
-            ]);
-        }
-
-        $order = new Order();
-
-        $this->entityManager->beginTransaction();
-
-        try {
-            $order
-                ->setUser($user)
-                ->setStatus(OrderStatus::Placed)
-                ->setCreatedAt(new \DateTimeImmutable())
-                ->setTotal(number_format($this->cartService->getTotal(), 2, '.', ''))
-                ->setStreet($street)
-                ->setCity($city)
-                ->setPostalCode($postalCode)
-                ->setCountry($country);
-
-            foreach ($items as $item) {
-                $product = $item['product'];
-                $quantity = $item['quantity'];
-
-                if ($quantity > $product->getStock()) {
-                    throw new \InvalidArgumentException(sprintf(
-                        'Not enough stock for product "%s".',
-                        $product->getName()
-                    ));
-                }
-
-                $orderItem = new OrderItem();
-                $orderItem
-                    ->setProduct($product)
-                    ->setQuantity($quantity)
-                    ->setUnitPrice((string) $product->getPrice());
-
-                $order->addOrderItem($orderItem);
-
-                $product->setStock($product->getStock() - $quantity);
-
-                $this->entityManager->persist($orderItem);
-                $this->entityManager->persist($product);
+            if ($formData['street'] === '') {
+                $errors['street'] = 'Street is required.';
             }
 
-            $this->entityManager->persist($order);
-            $this->entityManager->flush();
-            $this->entityManager->commit();
+            if ($formData['city'] === '') {
+                $errors['city'] = 'City is required.';
+            }
 
-            $this->eventDispatcher->dispatch(new OrderPlacedEvent($order));
+            if ($formData['postalCode'] === '') {
+                $errors['postalCode'] = 'Postal code is required.';
+            }
 
-            $this->cartService->clear();
+            if ($formData['country'] === '') {
+                $errors['country'] = 'Country is required.';
+            }
 
-            $this->addFlash('success', sprintf('Order #%d was placed successfully.', $order->getId()));
+            if (count($errors) === 0) {
+                $order = new Order();
 
-            return $this->redirectToRoute('app_cart');
-        } catch (\Throwable $exception) {
-            $this->entityManager->rollback();
+                $this->entityManager->beginTransaction();
 
-            $this->addFlash('error', $exception->getMessage());
+                try {
+                    $order
+                        ->setUser($user)
+                        ->setStatus(OrderStatus::Placed)
+                        ->setCreatedAt(new \DateTimeImmutable())
+                        ->setTotal(number_format($this->cartService->getTotal(), 2, '.', ''))
+                        ->setStreet($formData['street'])
+                        ->setCity($formData['city'])
+                        ->setPostalCode($formData['postalCode'])
+                        ->setCountry($formData['country']);
 
-            return $this->redirectToRoute('app_cart');
+                    foreach ($items as $item) {
+                        $product = $item['product'];
+                        $quantity = $item['quantity'];
+
+                        if ($quantity > $product->getStock()) {
+                            throw new \InvalidArgumentException(sprintf(
+                                'Not enough stock for product "%s".',
+                                $product->getName()
+                            ));
+                        }
+
+                        $orderItem = new OrderItem();
+                        $orderItem
+                            ->setProduct($product)
+                            ->setQuantity($quantity)
+                            ->setUnitPrice((string) $product->getPrice());
+
+                        $order->addOrderItem($orderItem);
+
+                        $product->setStock($product->getStock() - $quantity);
+
+                        $this->entityManager->persist($orderItem);
+                        $this->entityManager->persist($product);
+                    }
+
+                    $this->entityManager->persist($order);
+                    $this->entityManager->flush();
+                    $this->entityManager->commit();
+
+                    $this->eventDispatcher->dispatch(new OrderPlacedEvent($order));
+
+                    $this->cartService->clear();
+
+                    return $this->redirectToRoute('app_checkout_confirmation', [
+                        'id' => $order->getId(),
+                    ]);
+                } catch (\Throwable $exception) {
+                    $this->entityManager->rollback();
+
+                    $this->addFlash('error', $exception->getMessage());
+
+                    return $this->redirectToRoute('app_cart');
+                }
+            }
         }
+
+        return $this->render('checkout/index.html.twig', [
+            'items' => $items,
+            'total' => $this->cartService->getTotal(),
+            'formData' => $formData,
+            'errors' => $errors,
+        ]);
+    }
+
+    #[Route('/checkout/confirmation/{id}', name: 'app_checkout_confirmation', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function confirmation(int $id, OrderRepository $orderRepository): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $user = $this->getUser();
+
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('A valid user is required to view this order.');
+        }
+
+        $order = $orderRepository->find($id);
+
+        if (!$order) {
+            throw $this->createNotFoundException('Order not found.');
+        }
+
+        if ($order->getUser() !== $user) {
+            throw $this->createAccessDeniedException('You are not allowed to view this order.');
+        }
+
+        return $this->render('checkout/confirmation.html.twig', [
+            'order' => $order,
+        ]);
     }
 }

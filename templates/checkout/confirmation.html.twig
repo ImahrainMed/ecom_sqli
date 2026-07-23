@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order confirmation - Ecom SQLI{% endblock %}
+
+{% block body %}
+    <section class="order-confirmation">
+        <h1>Order confirmation</h1>
+
+        <p class="success-message">
+            Your order has been placed successfully.
+        </p>
+
+        <h2>Order #{{ order.id }}</h2>
+
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.orderItems %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.unitPrice|number_format(2, '.', ' ') }} MAD</td>
+                        <td>{{ (item.unitPrice * item.quantity)|number_format(2, '.', ' ') }} MAD</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <p class="cart-total">
+            Total: {{ order.total|number_format(2, '.', ' ') }} MAD
+        </p>
+
+        <a href="{{ path('app_home') }}" class="btn btn-primary">
+            Continue shopping
+        </a>
+    </section>
+{% endblock %}

@@ -37,25 +37,65 @@
     <section class="checkout-address">
         <h2>Shipping address</h2>
 
-        <form method="post" action="{{ path('app_checkout') }}">
-            <div>
+        <form method="post" action="{{ path('app_checkout') }}" novalidate>
+            <div class="form-group">
                 <label for="street">Street</label>
-                <input type="text" id="street" name="street" value="{{ street|default('') }}" required>
+                <input
+                    type="text"
+                    id="street"
+                    name="street"
+                    value="{{ formData.street|default('') }}"
+                    class="{{ errors.street is defined ? 'is-invalid' : '' }}"
+                >
+
+                {% if errors.street is defined %}
+                    <p class="form-error">{{ errors.street }}</p>
+                {% endif %}
             </div>
 
-            <div>
+            <div class="form-group">
                 <label for="city">City</label>
-                <input type="text" id="city" name="city" value="{{ city|default('') }}" required>
+                <input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value="{{ formData.city|default('') }}"
+                    class="{{ errors.city is defined ? 'is-invalid' : '' }}"
+                >
+
+                {% if errors.city is defined %}
+                    <p class="form-error">{{ errors.city }}</p>
+                {% endif %}
             </div>
 
-            <div>
+            <div class="form-group">
                 <label for="postalCode">Postal code</label>
-                <input type="text" id="postalCode" name="postalCode" value="{{ postalCode|default('') }}" required>
+                <input
+                    type="text"
+                    id="postalCode"
+                    name="postalCode"
+                    value="{{ formData.postalCode|default('') }}"
+                    class="{{ errors.postalCode is defined ? 'is-invalid' : '' }}"
+                >
+
+                {% if errors.postalCode is defined %}
+                    <p class="form-error">{{ errors.postalCode }}</p>
+                {% endif %}
             </div>
 
-            <div>
+            <div class="form-group">
                 <label for="country">Country</label>
-                <input type="text" id="country" name="country" value="{{ country|default('') }}" required>
+                <input
+                    type="text"
+                    id="country"
+                    name="country"
+                    value="{{ formData.country|default('') }}"
+                    class="{{ errors.country is defined ? 'is-invalid' : '' }}"
+                >
+
+                {% if errors.country is defined %}
+                    <p class="form-error">{{ errors.country }}</p>
+                {% endif %}
             </div>
 
             <button type="submit" class="btn btn-primary">
