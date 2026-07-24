@@ -30,6 +30,7 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/checkout, roles: ROLE_USER }
         - { path: ^/account, roles: ROLE_USER }
 

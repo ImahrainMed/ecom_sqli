@@ -2,22 +2,22 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\UserRegistrationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class RegistrationController extends AbstractController
 {
+    public function __construct(
+        private readonly UserRegistrationService $userRegistrationService,
+    ) {
+    }
+
     #[Route('/register', name: 'app_register', methods: ['GET', 'POST'])]
-    public function register(
-        Request $request,
-        UserPasswordHasherInterface $passwordHasher,
-        EntityManagerInterface $entityManager
-    ): Response {
+    public function register(Request $request): Response
+    {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
@@ -34,46 +34,15 @@ class RegistrationController extends AbstractController
                 $errors['global'] = 'Invalid CSRF token.';
             }
 
-            if ($email === '') {
-                $errors['email'] = 'Email is required.';
-            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors['email'] = 'Please enter a valid email address.';
-            }
-
-            if ($password === '') {
-                $errors['password'] = 'Password is required.';
-            } elseif (strlen($password) < 6) {
-                $errors['password'] = 'Password must contain at least 6 characters.';
-            }
-
-            if ($confirmPassword === '') {
-                $errors['confirmPassword'] = 'Please confirm your password.';
-            } elseif ($password !== $confirmPassword) {
-                $errors['confirmPassword'] = 'Passwords do not match.';
-            }
-
             if (count($errors) === 0) {
-                $existingUser = $entityManager
-                    ->getRepository(User::class)
-                    ->findOneBy(['email' => $email]);
+                $result = $this->userRegistrationService->register($email, $password, $confirmPassword);
+                $errors = $result['errors'];
 
-                if ($existingUser) {
-                    $errors['email'] = 'An account already exists with this email.';
+                if ($result['user'] !== null) {
+                    $this->addFlash('success', 'Your account has been created. You can now log in.');
+
+                    return $this->redirectToRoute('app_login');
                 }
-            }
-
-            if (count($errors) === 0) {
-                $user = new User();
-                $user->setEmail($email);
-                $user->setRoles(['ROLE_USER']);
-                $user->setPassword($passwordHasher->hashPassword($user, $password));
-
-                $entityManager->persist($user);
-                $entityManager->flush();
-
-                $this->addFlash('success', 'Your account has been created. You can now log in.');
-
-                return $this->redirectToRoute('app_login');
             }
         }
 
