@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My orders - Ecom SQLI{% endblock %}
+
+{% block body %}
+    <section class="orders-page">
+        <h1>My orders</h1>
+
+        {% if orders is empty %}
+            <div class="cart-empty">
+                <p>You haven't placed any order yet.</p>
+                <a href="{{ path('app_home') }}" class="btn btn-primary">Continue shopping</a>
+            </div>
+        {% else %}
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.createdAt|date('Y-m-d H:i') }}</td>
+                            <td>{{ order.status.value|capitalize }}</td>
+                            <td>{{ order.total|number_format(2, '.', ' ') }} MAD</td>
+                            <td>
+                                <a href="{{ path('app_account_order_detail', {id: order.id}) }}" class="btn btn-primary">View details</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </section>
+{% endblock %}

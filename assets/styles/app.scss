@@ -382,6 +382,22 @@ footer .container {
     text-align: center;
 }
 
+/* ACCOUNT ORDERS */
+.orders-page,
+.order-detail {
+    text-align: left;
+}
+
+.orders-page h1,
+.order-detail h1 {
+    margin-bottom: 20px;
+}
+
+.order-detail__meta,
+.order-detail__address {
+    margin-bottom: 20px;
+}
+
 .cart-qty-input {
     width: 60px;
     padding: 6px 8px;
