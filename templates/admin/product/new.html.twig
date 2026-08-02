@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create product - Ecom SQLI{% endblock %}
+
+{% block body %}
+    <h1>Create product</h1>
+
+    {% include 'admin/product/_form.html.twig' with {
+        product: product,
+        categories: categories,
+        errors: errors
+    } %}
+{% endblock %}
