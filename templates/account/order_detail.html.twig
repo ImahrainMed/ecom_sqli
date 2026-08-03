@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order #{{ order.id }} - Ecom SQLI{% endblock %}
+
+{% block body %}
+    <section class="order-detail">
+        <h1>Order #{{ order.id }}</h1>
+
+        <p>
+            <a href="{{ path('app_account_orders') }}">&laquo; Back to my orders</a>
+        </p>
+
+        <div class="order-detail__meta">
+            <p><strong>Date:</strong> {{ order.createdAt|date('Y-m-d H:i') }}</p>
+            <p><strong>Status:</strong> {{ order.status.value|capitalize }}</p>
+        </div>
+
+        <h2>Shipping address</h2>
+        <p class="order-detail__address">
+            {{ order.street }}<br>
+            {{ order.postalCode }} {{ order.city }}<br>
+            {{ order.country }}
+        </p>
+
+        <h2>Items</h2>
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Unit price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.orderItems %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.unitPrice|number_format(2, '.', ' ') }} MAD</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ (item.unitPrice * item.quantity)|number_format(2, '.', ' ') }} MAD</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <span>Total</span>
+            <span class="cart-summary__total">{{ order.total|number_format(2, '.', ' ') }} MAD</span>
+        </div>
+    </section>
+{% endblock %}

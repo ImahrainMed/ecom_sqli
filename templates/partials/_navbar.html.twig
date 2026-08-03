@@ -38,6 +38,10 @@
             </div>
         </div>
 
+        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            <a href="{{ path('app_account_orders') }}">My orders</a>
+        {% else %}
+            <a href="#">Login</a>
         {% if app.user %}
             <a href="{{ path('app_logout') }}">Logout</a>
         {% else %}
