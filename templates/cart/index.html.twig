@@ -57,6 +57,20 @@
                 <span>Total</span>
                 <span class="cart-summary__total">{{ total|number_format(2, '.', ' ') }} MAD</span>
             </div>
+
+            <div class="cart-actions">
+    <form method="get" action="{{ path('app_home') }}">
+        <button type="submit" class="btn btn-secondary">
+            Continue shopping
+        </button>
+    </form>
+
+    <form method="get" action="{{ path('app_checkout') }}">
+        <button type="submit" class="btn btn-primary">
+            Proceed to checkout
+        </button>
+    </form>
+            </div>
         {% endif %}
     </section>
 {% endblock %}
