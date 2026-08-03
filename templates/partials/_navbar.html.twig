@@ -3,6 +3,7 @@
 <nav class="navbar">
     <div class="container">
         <a class="navbar-brand" href="{{ path('app_home') }}">Ecom SQLI</a>
+
         <a href="{{ path('app_home') }}">Home</a>
         <a href="{{ path('app_home') }}">Categories</a>
 
@@ -38,11 +39,13 @@
             </div>
         </div>
 
-        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-            <a href="{{ path('app_account_orders') }}">My orders</a>
-        {% else %}
-            <a href="#">Login</a>
         {% if app.user %}
+            <a href="{{ path('app_account_orders') }}">My orders</a>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('app_admin_product_index') }}">Admin</a>
+            {% endif %}
+
             <a href="{{ path('app_logout') }}">Logout</a>
         {% else %}
             <a href="{{ path('app_login') }}">Login</a>

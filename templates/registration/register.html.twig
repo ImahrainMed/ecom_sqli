@@ -1,67 +1,82 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register - Ecom SQLI{% endblock %}
+{% block title %}Register | Ecom SQLI{% endblock %}
 
 {% block body %}
-    <h1>Create an account</h1>
+    <section class="auth-page">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <h1>Create an account</h1>
+                <p>Register to place orders and follow your purchases.</p>
+            </div>
 
-    {% if errors.global is defined %}
-        <p class="form-error">{{ errors.global }}</p>
-    {% endif %}
-
-    <form method="post" action="{{ path('app_register') }}" novalidate>
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
-
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input
-                type="email"
-                id="email"
-                name="email"
-                value="{{ email|default('') }}"
-                class="{{ errors.email is defined ? 'is-invalid' : '' }}"
-            >
-
-            {% if errors.email is defined %}
-                <p class="form-error">{{ errors.email }}</p>
+            {% if errors.global is defined %}
+                <div class="auth-alert">
+                    {{ errors.global }}
+                </div>
             {% endif %}
+
+            <form method="post" action="{{ path('app_register') }}" class="auth-form" novalidate>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value="{{ email|default('') }}"
+                        class="form-control {{ errors.email is defined ? 'is-invalid' : '' }}"
+                        autocomplete="email"
+                        required
+                    >
+
+                    {% if errors.email is defined %}
+                        <p class="form-error">{{ errors.email }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-control {{ errors.password is defined ? 'is-invalid' : '' }}"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    {% if errors.password is defined %}
+                        <p class="form-error">{{ errors.password }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        class="form-control {{ errors.confirmPassword is defined ? 'is-invalid' : '' }}"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    {% if errors.confirmPassword is defined %}
+                        <p class="form-error">{{ errors.confirmPassword }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary auth-submit">
+                    Register
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <span>Already have an account?</span>
+                <a href="{{ path('app_login') }}">Sign in</a>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                class="{{ errors.password is defined ? 'is-invalid' : '' }}"
-            >
-
-            {% if errors.password is defined %}
-                <p class="form-error">{{ errors.password }}</p>
-            {% endif %}
-        </div>
-
-        <div class="form-group">
-            <label for="confirmPassword">Confirm password</label>
-            <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                class="{{ errors.confirmPassword is defined ? 'is-invalid' : '' }}"
-            >
-
-            {% if errors.confirmPassword is defined %}
-                <p class="form-error">{{ errors.confirmPassword }}</p>
-            {% endif %}
-        </div>
-
-        <button type="submit" class="btn btn-primary">
-            Register
-        </button>
-    </form>
-
-    <p>
-        Already have an account?
-        <a href="{{ path('app_login') }}">Log in</a>
-    </p>
+    </section>
 {% endblock %}
