@@ -692,3 +692,12 @@ footer .container {
     color: #b91c1c;
     font-size: 13px;
 }
+.product-card__link {
+    color: inherit;
+    text-decoration: none;
+    display: block;
+}
+
+.product-card__link:hover h3 {
+    text-decoration: underline;
+}
