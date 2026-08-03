@@ -1,9 +1,10 @@
 {% set cart = cart_summary() %}
+
 <nav class="navbar">
     <div class="container">
-        <a class="navbar-brand" href="/">Ecom SQLI</a>
-        <a href="/">Home</a>
-        <a href="#">Categories</a>
+        <a class="navbar-brand" href="{{ path('app_home') }}">Ecom SQLI</a>
+        <a href="{{ path('app_home') }}">Home</a>
+        <a href="{{ path('app_home') }}">Categories</a>
 
         <div class="cart-dropdown" data-controller="cart-dropdown">
             <button type="button" class="cart-dropdown__toggle" data-action="click->cart-dropdown#toggle">
@@ -20,7 +21,9 @@
                             <li class="cart-dropdown__item">
                                 <span class="cart-dropdown__item-name">{{ item.product.name }}</span>
                                 <span class="cart-dropdown__item-qty">x{{ item.quantity }}</span>
-                                <span class="cart-dropdown__item-price">{{ item.subtotal|number_format(2, '.', ' ') }} MAD</span>
+                                <span class="cart-dropdown__item-price">
+                                    {{ item.subtotal|number_format(2, '.', ' ') }} MAD
+                                </span>
                             </li>
                         {% endfor %}
                     </ul>
@@ -35,6 +38,10 @@
             </div>
         </div>
 
-        <a href="#">Login</a>
+        {% if app.user %}
+            <a href="{{ path('app_logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ path('app_login') }}">Login</a>
+        {% endif %}
     </div>
 </nav>

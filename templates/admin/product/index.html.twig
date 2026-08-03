@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin Products - Ecom SQLI{% endblock %}
+
+{% block body %}
+    <h1>Admin - Products</h1>
+
+    <p>
+        <a href="{{ path('app_admin_product_new') }}" class="btn btn-primary">
+            Create product
+        </a>
+    </p>
+
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+                <tr>
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category.name }}</td>
+                    <td>{{ product.price|number_format(2, '.', ' ') }} MAD</td>
+                    <td>{{ product.stock }}</td>
+                    <td>
+                        <a href="{{ path('app_admin_product_edit', { id: product.id }) }}">
+                            Edit
+                        </a>
+
+                        <form
+                            method="post"
+                            action="{{ path('app_admin_product_delete', { id: product.id }) }}"
+                            style="display: inline-block;"
+                            onsubmit="return confirm('Are you sure you want to delete this product?');"
+                        >
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ product.id) }}">
+                            <button type="submit" class="btn btn-danger">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">No products found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
