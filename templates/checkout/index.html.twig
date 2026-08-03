@@ -1,106 +1,112 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Checkout - Ecom SQLI{% endblock %}
+{% block title %}Checkout | Ecom SQLI{% endblock %}
 
 {% block body %}
-    <h1>Checkout</h1>
-
-    <section class="checkout-summary">
-        <h2>Order summary</h2>
-
-        <table class="cart-table">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Unit price</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                    <tr>
-                        <td>{{ item.product.name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>{{ item.product.price|number_format(2, '.', ' ') }} MAD</td>
-                        <td>{{ item.subtotal|number_format(2, '.', ' ') }} MAD</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <p class="cart-total">
-            Total: {{ total|number_format(2, '.', ' ') }} MAD
-        </p>
-    </section>
-
-    <section class="checkout-address">
-        <h2>Shipping address</h2>
-
-        <form method="post" action="{{ path('app_checkout') }}" novalidate>
-            <div class="form-group">
-                <label for="street">Street</label>
-                <input
-                    type="text"
-                    id="street"
-                    name="street"
-                    value="{{ formData.street|default('') }}"
-                    class="{{ errors.street is defined ? 'is-invalid' : '' }}"
-                >
-
-                {% if errors.street is defined %}
-                    <p class="form-error">{{ errors.street }}</p>
-                {% endif %}
+    <section class="checkout-page">
+        <div class="checkout-card">
+            <div class="checkout-card__header">
+                <h1>Checkout</h1>
+                <p>Review your order and enter your shipping address.</p>
             </div>
 
-            <div class="form-group">
-                <label for="city">City</label>
-                <input
-                    type="text"
-                    id="city"
-                    name="city"
-                    value="{{ formData.city|default('') }}"
-                    class="{{ errors.city is defined ? 'is-invalid' : '' }}"
-                >
+            <div class="checkout-summary">
+                <h2>Order summary</h2>
 
-                {% if errors.city is defined %}
-                    <p class="form-error">{{ errors.city }}</p>
-                {% endif %}
+                <table class="checkout-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Unit price</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.product.price|number_format(2, '.', ' ') }} MAD</td>
+                                <td>{{ item.subtotal|number_format(2, '.', ' ') }} MAD</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div class="checkout-total">
+                    <span>Total</span>
+                    <strong>{{ total|number_format(2, '.', ' ') }} MAD</strong>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="postalCode">Postal code</label>
-                <input
-                    type="text"
-                    id="postalCode"
-                    name="postalCode"
-                    value="{{ formData.postalCode|default('') }}"
-                    class="{{ errors.postalCode is defined ? 'is-invalid' : '' }}"
-                >
+            <form method="post" class="checkout-form">
+                <h2>Shipping address</h2>
 
-                {% if errors.postalCode is defined %}
-                    <p class="form-error">{{ errors.postalCode }}</p>
-                {% endif %}
-            </div>
+                <div class="form-group">
+                    <label for="street">Street</label>
+                    <input
+                        type="text"
+                        id="street"
+                        name="street"
+                        class="form-control"
+                        value="{{ formData.street ?? '' }}"
+                        required
+                    >
+                    {% if errors.street is defined %}
+                        <p class="form-error">{{ errors.street }}</p>
+                    {% endif %}
+                </div>
 
-            <div class="form-group">
-                <label for="country">Country</label>
-                <input
-                    type="text"
-                    id="country"
-                    name="country"
-                    value="{{ formData.country|default('') }}"
-                    class="{{ errors.country is defined ? 'is-invalid' : '' }}"
-                >
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input
+                        type="text"
+                        id="city"
+                        name="city"
+                        class="form-control"
+                        value="{{ formData.city ?? '' }}"
+                        required
+                    >
+                    {% if errors.city is defined %}
+                        <p class="form-error">{{ errors.city }}</p>
+                    {% endif %}
+                </div>
 
-                {% if errors.country is defined %}
-                    <p class="form-error">{{ errors.country }}</p>
-                {% endif %}
-            </div>
+                <div class="form-group">
+                    <label for="postalCode">Postal code</label>
+                    <input
+                        type="text"
+                        id="postalCode"
+                        name="postalCode"
+                        class="form-control"
+                        value="{{ formData.postalCode ?? '' }}"
+                        required
+                    >
+                    {% if errors.postalCode is defined %}
+                        <p class="form-error">{{ errors.postalCode }}</p>
+                    {% endif %}
+                </div>
 
-            <button type="submit" class="btn btn-primary">
-                Place order
-            </button>
-        </form>
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input
+                        type="text"
+                        id="country"
+                        name="country"
+                        class="form-control"
+                        value="{{ formData.country ?? '' }}"
+                        required
+                    >
+                    {% if errors.country is defined %}
+                        <p class="form-error">{{ errors.country }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary checkout-submit">
+                    Place order
+                </button>
+            </form>
+        </div>
     </section>
 {% endblock %}
