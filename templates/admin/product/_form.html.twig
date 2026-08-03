@@ -1,0 +1,102 @@
+<form method="post" novalidate>
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input
+            type="text"
+            id="name"
+            name="name"
+            value="{{ product.name|default('') }}"
+            class="{{ errors.name is defined ? 'is-invalid' : '' }}"
+        >
+
+        {% if errors.name is defined %}
+            <p class="form-error">{{ errors.name }}</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+            id="description"
+            name="description"
+            class="{{ errors.description is defined ? 'is-invalid' : '' }}"
+        >{{ product.description|default('') }}</textarea>
+
+        {% if errors.description is defined %}
+            <p class="form-error">{{ errors.description }}</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="price">Price</label>
+        <input
+            type="text"
+            id="price"
+            name="price"
+            value="{{ product.price|default('') }}"
+            class="{{ errors.price is defined ? 'is-invalid' : '' }}"
+        >
+
+        {% if errors.price is defined %}
+            <p class="form-error">{{ errors.price }}</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="stock">Stock</label>
+        <input
+            type="number"
+            id="stock"
+            name="stock"
+            value="{{ product.stock|default('') }}"
+            min="0"
+            class="{{ errors.stock is defined ? 'is-invalid' : '' }}"
+        >
+
+        {% if errors.stock is defined %}
+            <p class="form-error">{{ errors.stock }}</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="imageUrl">Image URL</label>
+        <input
+            type="text"
+            id="imageUrl"
+            name="imageUrl"
+            value="{{ product.imageUrl|default('') }}"
+        >
+    </div>
+
+    <div class="form-group">
+        <label for="category">Category</label>
+        <select
+            id="category"
+            name="category"
+            class="{{ errors.category is defined ? 'is-invalid' : '' }}"
+        >
+            <option value="">Choose a category</option>
+
+            {% for category in categories %}
+                <option
+                    value="{{ category.id }}"
+                    {% if product.category and product.category.id == category.id %}selected{% endif %}
+                >
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        {% if errors.category is defined %}
+            <p class="form-error">{{ errors.category }}</p>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Save
+    </button>
+
+    <a href="{{ path('app_admin_product_index') }}">
+        Back to list
+    </a>
+</form>
