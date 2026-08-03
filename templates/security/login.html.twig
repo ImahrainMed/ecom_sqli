@@ -1,48 +1,59 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Login - Ecom SQLI{% endblock %}
+{% block title %}Login | Ecom SQLI{% endblock %}
 
 {% block body %}
-    <h1>Log in</h1>
+    <section class="auth-page">
+        <div class="auth-card">
+            <div class="auth-card__header">
+                <h1>Welcome back</h1>
+                <p>Sign in to continue to your account.</p>
+            </div>
 
-    {% if error %}
-        <p class="form-error">
-            Invalid email or password.
-        </p>
-    {% endif %}
+            {% if error %}
+                <div class="auth-alert">
+                    {{ error.messageKey|trans(error.messageData, 'security') }}
+                </div>
+            {% endif %}
 
-    <form method="post" action="{{ path('app_login') }}">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <form method="post" class="auth-form">
+                <div class="form-group">
+                    <label for="inputEmail">Email address</label>
+                    <input
+                        type="email"
+                        value="{{ last_username }}"
+                        name="_username"
+                        id="inputEmail"
+                        class="form-control"
+                        autocomplete="email"
+                        required
+                        autofocus
+                    >
+                </div>
 
-        <div class="form-group">
-            <label for="username">Email</label>
-            <input
-                type="email"
-                id="username"
-                name="_username"
-                value="{{ last_username }}"
-                required
-                autofocus
-            >
+                <div class="form-group">
+                    <label for="inputPassword">Password</label>
+                    <input
+                        type="password"
+                        name="_password"
+                        id="inputPassword"
+                        class="form-control"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <button class="btn btn-primary auth-submit" type="submit">
+                    Sign in
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <span>Don’t have an account?</span>
+                <a href="{{ path('app_register') }}">Create one</a>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input
-                type="password"
-                id="password"
-                name="_password"
-                required
-            >
-        </div>
-
-        <button type="submit" class="btn btn-primary">
-            Log in
-        </button>
-    </form>
-
-    <p>
-        No account yet?
-        <a href="{{ path('app_register') }}">Create an account</a>
-    </p>
+    </section>
 {% endblock %}
